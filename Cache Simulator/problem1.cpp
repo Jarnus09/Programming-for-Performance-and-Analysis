@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     std::vector<L2Cache> l2(5, L2Cache(8, 32, 512 * 1024));   // 512KB, 32B block, 8-way
     std::vector<L3Cache> l3(5, L3Cache(24, 32, 1536 * 1024)); // 1.5MB, 32B block, 24-way
 
-    int total_accesses = 0;
+    int total_accesses = 1;
 
     FILE *fp;
     char input_name[256];
@@ -198,10 +198,41 @@ int main(int argc, char *argv[])
 
         while (!feof(fp))
         {
-            fread(&i_or_d, sizeof(char), 1, fp);
-            fread(&type, sizeof(char), 1, fp);
-            fread(&addr, sizeof(unsigned long long), 1, fp);
-            fread(&pc, sizeof(unsigned), 1, fp);
+            size_t a = fread(&i_or_d, sizeof(char), 1, fp);
+            if (a != 1)
+            {
+                if (feof(fp))
+                {
+                    // Reached end of file
+                    break;
+                }
+                else
+                {
+                    perror("Error reading i_or_d");
+                    exit(EXIT_FAILURE);
+                }
+            }
+
+            size_t b = fread(&type, sizeof(char), 1, fp);
+            if (b != 1)
+            {
+                perror("Error reading type");
+                exit(EXIT_FAILURE);
+            }
+
+            size_t c = fread(&addr, sizeof(unsigned long long), 1, fp);
+            if (c != 1)
+            {
+                perror("Error reading addr");
+                exit(EXIT_FAILURE);
+            }
+
+            size_t d = fread(&pc, sizeof(unsigned), 1, fp);
+            if (d != 1)
+            {
+                perror("Error reading pc");
+                exit(EXIT_FAILURE);
+            }
 
             // Process the entry
             if (type != 0)
@@ -212,18 +243,23 @@ int main(int argc, char *argv[])
         }
         fclose(fp);
     }
-    printf("L2 misses Case A: %llu\n", l2[0].misses);
-    printf("L3 misses Case A: %llu\n\n", l3[0].misses);
+    std::cout << "L2 misses Case A: " << l2[0].misses << std::endl;
+    std::cout << "L3 misses Case A: " << l3[0].misses << "\n"
+              << std::endl;
 
-    printf("L2 misses Case B: %llu\n", l2[1].misses);
-    printf("L3 misses Case B: %llu\n\n", l3[1].misses);
+    std::cout << "L2 misses Case B: " << l2[1].misses << std::endl;
+    std::cout << "L3 misses Case B: " << l3[1].misses << "\n"
+              << std::endl;
 
-    printf("L2 misses Case C: %llu\n", l2[2].misses);
-    printf("L3 misses Case C: %llu\n\n", l3[2].misses);
+    std::cout << "L2 misses Case C: " << l2[2].misses << std::endl;
+    std::cout << "L3 misses Case C: " << l3[2].misses << "\n"
+              << std::endl;
 
-    printf("L2 misses Case D: %llu\n", l2[3].misses);
-    printf("L3 misses Case D: %llu\n\n", l3[3].misses);
+    std::cout << "L2 misses Case D: " << l2[3].misses << std::endl;
+    std::cout << "L3 misses Case D: " << l3[3].misses << "\n"
+              << std::endl;
 
-    printf("L2 misses Case E: %llu\n", l2[4].misses);
-    printf("L3 misses Case E: %llu\n\n", l3[4].misses);
+    std::cout << "L2 misses Case E: " << l2[4].misses << std::endl;
+    std::cout << "L3 misses Case E: " << l3[4].misses << "\n"
+              << std::endl;
 }
